@@ -13,12 +13,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.edlplan.audiov.core.AudioVCore;
+import com.edlplan.audiov.platform.android.AndroidPlugin;
+import com.edlplan.audiov.platform.bass.BassPlugin;
+
 public class AudioVMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AudioVCore.initial(AndroidPlugin.INSTANCE, BassPlugin.INSTANCE);
+
         setContentView(R.layout.activity_audio_v_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

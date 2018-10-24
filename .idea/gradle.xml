@@ -8,8 +8,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/LibBASS" />
+            <option value="$PROJECT_DIR$/androidplugin" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/audiov" />
+            <option value="$PROJECT_DIR$/bassplugin" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

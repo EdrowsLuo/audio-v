@@ -1,1 +1,1 @@
-include ':app', ':audiov'
+include ':app', ':audiov', ':bassplugin', ':androidplugin', ":LibBASS"

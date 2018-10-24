@@ -12,13 +12,28 @@ import java.lang.reflect.InvocationTargetException;
  */
 public abstract class ATexture {
 
-    public abstract class IFactory<T extends ATexture> {
+
+    /**
+     * @return 材质的宽度
+     */
+    public abstract int getWidth();
+
+    /**
+     * @return 材质的高度
+     */
+    public abstract int getHeight();
+
+
+    /**
+     * 创建Atexture的工厂
+     */
+    public static abstract class AFactory {
         /**
          * 创建一个空材质，在反射中使用，子类必须继承
          * @param w 创建的材质的宽
          * @param h 创建的材质的高
          */
-        public abstract T create(int w, int h);
+        public abstract ATexture create(int w, int h);
 
         /**
          * 通过解析一组数据来创建材质
@@ -26,7 +41,7 @@ public abstract class ATexture {
          * @param offset 开始位置偏移
          * @param length 数据长度
          */
-        public abstract T create(byte[] data, int offset, int length);
+        public abstract ATexture create(byte[] data, int offset, int length);
 
 
         /**
@@ -35,7 +50,7 @@ public abstract class ATexture {
          * @return  创建的材质
          * @throws IOException 读取文件出错时抛出
          */
-        public T createFromFile(File f) throws IOException {
+        public ATexture createFromFile(File f) throws IOException {
             ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
             FileInputStream in = new FileInputStream(f);
             byte[] buffer = new byte[1024];
@@ -51,24 +66,23 @@ public abstract class ATexture {
 
     /**
      * 通过反射创建的默认工厂，此时要求对应的ATexture有对应的构造方法
-     * @param <T>
      */
-    public class Factory<T extends ATexture> extends IFactory<T>{
+    public static class Factory extends AFactory{
 
-        private Class<T> klass;
+        private Class<? extends ATexture> klass;
 
-        private Constructor<T> whConstructor;
+        private Constructor<? extends ATexture> whConstructor;
 
-        private Constructor<T> byteConstructor;
+        private Constructor<? extends ATexture> byteConstructor;
 
-        public Factory(Class<T> klass) throws NoSuchMethodException {
+        public Factory(Class<? extends ATexture> klass) throws NoSuchMethodException {
             this.klass = klass;
             whConstructor = klass.getConstructor(int.class, int.class);
             byteConstructor = klass.getConstructor(byte[].class, int.class, int.class);
         }
 
         @Override
-        public T create(int w, int h) {
+        public ATexture create(int w, int h) {
             try {
                 return whConstructor.newInstance(w, h);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -78,7 +92,7 @@ public abstract class ATexture {
         }
 
         @Override
-        public T create(byte[] data, int offset, int length) {
+        public ATexture create(byte[] data, int offset, int length) {
             try {
                 return whConstructor.newInstance(data, offset, length);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
