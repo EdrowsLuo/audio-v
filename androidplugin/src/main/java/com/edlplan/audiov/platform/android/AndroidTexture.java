@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 
 import com.edlplan.audiov.core.graphics.ATexture;
 
+import java.io.IOException;
+
 public class AndroidTexture extends ATexture {
 
     public static AndroidTextureFactory FACTORY = new AndroidTextureFactory();
@@ -30,6 +32,12 @@ public class AndroidTexture extends ATexture {
     }
 
     public static class AndroidTextureFactory extends AFactory {
+
+        @Override
+        public ATexture createFromAssets(String path) throws IOException {
+            Bitmap bmp = BitmapFactory.decodeStream(AndroidPlugin.getContext().getAssets().open(path));
+            return new AndroidTexture(bmp);
+        }
 
         @Override
         public ATexture create(int w, int h) {

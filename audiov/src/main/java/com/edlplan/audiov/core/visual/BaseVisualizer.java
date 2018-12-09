@@ -13,13 +13,30 @@ public abstract class BaseVisualizer extends AbstractVisualizer {
      */
     protected float[] fftData;
 
+    protected int baseSize;
+
     public BaseVisualizer() {
-        fftData = new float[1024];
+        fftData = new float[512];
+    }
+
+    public void setBaseSize(int baseSize) {
+        if (Math.abs(baseSize - this.baseSize) > 0.5) {
+            this.baseSize = baseSize;
+            onBaseSizeChanged(baseSize);
+        }
+    }
+
+    public float getBaseSize() {
+        return baseSize;
+    }
+
+    protected void onBaseSizeChanged(int newSize) {
+
     }
 
     @Override
     public void update() {
-        if (entry == null) {
+        if (entry == null || !entry.isPlaying()) {
             return;
         }
         entry.getFFT(fftData, IAudioEntry.FLAG_FFT1024);

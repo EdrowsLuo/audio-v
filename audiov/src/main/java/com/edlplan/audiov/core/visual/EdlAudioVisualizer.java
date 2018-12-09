@@ -4,6 +4,8 @@ import com.edlplan.audiov.core.AudioVCore;
 import com.edlplan.audiov.core.graphics.ACanvas;
 import com.edlplan.audiov.core.graphics.ATexture;
 
+import java.io.IOException;
+
 public class EdlAudioVisualizer extends BaseVisualizer {
 
     /**
@@ -14,14 +16,21 @@ public class EdlAudioVisualizer extends BaseVisualizer {
     /**
      * 定义绘制的大小
      */
-    private float width;
-    private float height;
+    private float width = 400;
+    private float height = 400;
 
 
     @Override
     protected void onPrepare() {
         super.onPrepare();
-
+        try {
+            centerTexture = ATexture.getFactory().createFromAssets("logo_white.png");
+            backBuffer = ATexture.getFactory().create(720, 720);
+            currentView = ATexture.getFactory().create(720, 720);
+            System.out.println("EDL::LOG create buffers " + currentView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -67,11 +76,11 @@ public class EdlAudioVisualizer extends BaseVisualizer {
 
         barCount = mixedFFT.length - 20;
 
-        float mul = 0;
+        /*float mul = 0;
         for(int i=0;i<mixedFFT.length;i++) {
             mul += mixedFFT[i];
         }
-        mul = (float) Math.sqrt(0.15f * mul / mixedFFT.length);
+        mul = (float) Math.sqrt(0.15f * mul / mixedFFT.length);*/
 
         float k = 0;
         for (int i = 0; i < mixedFFT.length; i++) {
@@ -198,7 +207,12 @@ public class EdlAudioVisualizer extends BaseVisualizer {
     }
 
     @Override
-    public void draw(ACanvas canvas) {
+    public void draw() {
         updateDrawdata();
+    }
+
+    @Override
+    public ATexture getResult() {
+        return currentView;
     }
 }

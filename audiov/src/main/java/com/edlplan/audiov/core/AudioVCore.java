@@ -4,6 +4,8 @@ import com.edlplan.audiov.core.audio.IAudioEntry;
 import com.edlplan.audiov.core.graphics.ACanvas;
 import com.edlplan.audiov.core.graphics.ATexture;
 
+import java.io.File;
+
 public class AudioVCore {
 
     private static AudioVCore instance;
@@ -28,6 +30,14 @@ public class AudioVCore {
 
     public PlatformAudio audio() {
         return audioPlugin;
+    }
+
+    public static IAudioEntry createAudio(File file) {
+        return instance.audio().getAudioFactory().create(file);
+    }
+
+    public static IAudioEntry createAudio(String file) {
+        return instance.audio().getAudioFactory().create(file);
     }
 
     /**

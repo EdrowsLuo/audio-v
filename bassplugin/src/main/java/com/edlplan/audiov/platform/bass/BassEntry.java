@@ -47,7 +47,7 @@ public class BassEntry implements IAudioEntry{
 
     @Override
     public double length() {
-        return channel.getLength();
+        return channel.getLengthS() * 1000;
     }
 
     @Override
@@ -74,6 +74,11 @@ public class BassEntry implements IAudioEntry{
             }
             default:
         }
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return channel.isActive();
     }
 
     public static class BassFactory extends IAudioEntry.AFactory {

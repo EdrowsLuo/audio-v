@@ -50,7 +50,7 @@ public interface IAudioEntry {
     void seekTo(double ms);
 
     /**
-     * @param volume 要设置的音量
+     * @param volume 要设置的音量，为0~1的值
      */
     void setVolume(float volume);
 
@@ -66,6 +66,7 @@ public interface IAudioEntry {
      */
     void getFFT(float[] array, int type);
 
+    boolean isPlaying();
 
     abstract class AFactory{
         /**
@@ -73,5 +74,9 @@ public interface IAudioEntry {
          * @return 返回的音频对象
          */
         public abstract IAudioEntry create(File file);
+
+        public IAudioEntry create(String file) {
+            return create(new File(file));
+        }
     }
 }

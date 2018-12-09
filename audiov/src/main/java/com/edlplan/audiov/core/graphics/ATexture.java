@@ -1,5 +1,7 @@
 package com.edlplan.audiov.core.graphics;
 
+import com.edlplan.audiov.core.AudioVCore;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +24,11 @@ public abstract class ATexture {
      * @return 材质的高度
      */
     public abstract int getHeight();
+
+
+    public static AFactory getFactory() {
+        return AudioVCore.getInstance().graphics().getTextureFactory();
+    }
 
 
     /**
@@ -62,12 +69,14 @@ public abstract class ATexture {
             return create(out, 0, out.length);
         }
 
+        public abstract ATexture createFromAssets(String path) throws IOException;
+
     }
 
     /**
      * 通过反射创建的默认工厂，此时要求对应的ATexture有对应的构造方法
      */
-    public static class Factory extends AFactory{
+    /*public static class Factory extends AFactory{
 
         private Class<? extends ATexture> klass;
 
@@ -100,5 +109,5 @@ public abstract class ATexture {
                 return null;
             }
         }
-    }
+    }*/
 }

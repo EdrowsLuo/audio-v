@@ -1,5 +1,6 @@
 package com.edlplan.audiov.platform.android;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -17,8 +18,13 @@ public class AndroidCanvas extends ACanvas {
 
     private Canvas canvas;
 
+    public AndroidCanvas(Bitmap bitmap) {
+        this(new AndroidTexture(bitmap));
+    }
+
     public AndroidCanvas(AndroidTexture texture) {
         super(texture);
+        this.texture = texture;
         canvas = new Canvas(texture.getBitmap());
     }
 
@@ -34,10 +40,10 @@ public class AndroidCanvas extends ACanvas {
 
     @Override
     public void clear(float r, float g, float b, float a) {
-        texture.getBitmap().eraseColor(argb(a, r, g, b));
+        texture.getBitmap().eraseColor(rgba(r, g, b, a));
     }
 
-    public static int argb(float r, float g, float b, float a) {
+    public static int rgba(float r, float g, float b, float a) {
         return ((int) (a * 255.0f + 0.5f) << 24) |
                 ((int) (r   * 255.0f + 0.5f) << 16) |
                 ((int) (g * 255.0f + 0.5f) <<  8) |
@@ -53,19 +59,21 @@ public class AndroidCanvas extends ACanvas {
         Paint paint = new Paint();
         paint.setARGB(255, 255, 255, 255);
         paint.setAlpha(color255(alpha));
+        paint.setAntiAlias(true);
         canvas.drawBitmap(
                 ((AndroidTexture) texture).getBitmap(),
-                new Rect(ox, oy, ow, oh),
-                new RectF(cx, cy, cw, ch),
+                new Rect(ox, oy, ox + ow, oy + oh),
+                new RectF(cx, cy, cx + cw, cy + ch),
                 paint);
     }
 
     @Override
     public void drawLines(float[] lineData, float lineWidth, float r, float g, float b, float a) {
         Paint paint = new Paint();
-        paint.setColor(argb(a, r, g, b));
+        paint.setColor(rgba(r, g, b, a));
         paint.setStrokeWidth(lineWidth);
         paint.setStyle(Paint.Style.FILL);
+        paint.setAntiAlias(true);
         canvas.drawLines(lineData, paint);
     }
 

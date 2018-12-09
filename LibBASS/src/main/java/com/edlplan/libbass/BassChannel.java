@@ -8,6 +8,8 @@ public class BassChannel {
     private Type type;
     private int chaId;
 
+    private boolean isPlaying = false;
+
     protected BassChannel(int chaId, Type type) {
         if (chaId == 0) {
             throw new RuntimeException("err bass: " + BASS.BASS_ErrorGetCode());
@@ -21,6 +23,10 @@ public class BassChannel {
         Stream, Sample, Music
     }
 
+    public boolean isActive() {
+        return isPlaying;
+    }
+
     public int getChannelId() {
         return chaId;
     }
@@ -30,6 +36,7 @@ public class BassChannel {
     }
 
     public boolean play(boolean loop) {
+        isPlaying = true;
         return BASS.BASS_ChannelPlay(getChannelId(), loop);
     }
 
@@ -45,7 +52,7 @@ public class BassChannel {
         return BASS.BASS_ChannelBytes2Seconds(chaId, BASS.BASS_ChannelGetPosition(chaId, BASS.BASS_POS_BYTE));
     }
 
-    public double getLength() {
+    public double getLengthS() {
         return BASS.BASS_ChannelBytes2Seconds(chaId, BASS.BASS_ChannelGetLength(chaId, BASS.BASS_POS_BYTE));
     }
 
@@ -69,11 +76,11 @@ public class BassChannel {
     }
 
     private int getFFT(ByteBuffer buf, int fft_size) {
-        return BASS.BASS_ChannelGetData(getChannelId(), buf, BASS.BASS_DATA_FFT512);
+        return BASS.BASS_ChannelGetData(getChannelId(), buf, fft_size);
     }
 
     public int getFFT(float[] b) {
-        ByteBuffer buf = ByteBuffer.allocateDirect(1024 * 2);
+        ByteBuffer buf = ByteBuffer.allocateDirect(512 * 4);
         buf.order(null);
         int r = getFFT(buf, BASS.BASS_DATA_FFT1024);
         buf.asFloatBuffer().get(b);
@@ -81,10 +88,12 @@ public class BassChannel {
     }
 
     public boolean pause() {
+        isPlaying = false;
         return BASS.BASS_ChannelPause(getChannelId());
     }
 
     public boolean stop() {
+        isPlaying = false;
         return BASS.BASS_ChannelStop(getChannelId());
     }
 

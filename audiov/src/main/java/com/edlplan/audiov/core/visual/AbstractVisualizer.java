@@ -2,6 +2,7 @@ package com.edlplan.audiov.core.visual;
 
 import com.edlplan.audiov.core.audio.IAudioEntry;
 import com.edlplan.audiov.core.graphics.ACanvas;
+import com.edlplan.audiov.core.graphics.ATexture;
 
 /**
  * 抽象的可视化器
@@ -41,7 +42,8 @@ public abstract class AbstractVisualizer {
 
     /**
      * 进行具体绘制
-     * @param canvas 进行绘制的canvas
      */
-    public abstract void draw(ACanvas canvas);
+    public abstract void draw();
+
+    public abstract ATexture getResult();
 }
