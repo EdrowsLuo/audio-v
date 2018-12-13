@@ -10,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.edlplan.audiov.EdAudioService;
 import com.edlplan.audiov.R;
 import com.edlplan.audiov.core.audio.IAudioEntry;
 import com.edlplan.audiov.core.audio.OnAudioChangeListener;
 import com.edlplan.audiov.scan.SongEntry;
+import com.edlplan.audiov.scan.SongListManager;
 
 public class SongListDialog extends Dialog implements OnAudioChangeListener{
 
@@ -29,7 +31,18 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
         super(context, R.style.Theme_MaterialComponents_BottomSheetDialog);
         setContentView(R.layout.song_list_dialog);
 
-        findViewById(R.id.button).setOnClickListener(v -> new OperationDialog(context).show());
+        findViewById(R.id.button).setOnClickListener(v -> {
+            SongListManagerDialog dialog = new SongListManagerDialog(getContext());
+            dialog.setOnClickOverride((holder, list) -> {
+                if (list.getCachedResult().size() == 0) {
+                    Toast.makeText(getContext(), "这个歌单好像是空的哎", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                EdAudioService.setSongList(list.getCachedResult());
+                dialog.dismiss();
+            });
+            dialog.show();
+        });
 
         recyclerView = findViewById(R.id.song_list_body);
 
@@ -38,6 +51,8 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
         recyclerView.setLayoutManager(layoutManager);
 
         layoutManager.setOrientation(OrientationHelper.VERTICAL);
+
+        layoutManager.setSmoothScrollbarEnabled(true);
 
         recyclerView.setAdapter(adapter = new SongListAdapter());
 
@@ -49,7 +64,7 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
     @Override
     public void dismiss() {
         super.dismiss();
-        EdAudioService.getAudioService().unregiserOnAudioChangeListener(this);
+        EdAudioService.getAudioService().unregisterOnAudioChangeListener(this);
     }
 
     @Override
@@ -73,7 +88,7 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
         }
     }
 
-    private static class SongListAdapter extends RecyclerView.Adapter<SongListEntryHolder> {
+    private class SongListAdapter extends RecyclerView.Adapter<SongListEntryHolder> {
 
         @NonNull
         @Override
@@ -99,11 +114,44 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
                 dialog.setTitle(entry.getSongName());
                 dialog.setOnDismissListener(
                         dialog1 -> EdAudioService.getAudioService().post(
-                                audioService -> audioService.unregiserOnAudioChangeListener(listener)));
+                                audioService -> audioService.unregisterOnAudioChangeListener(listener)));
 
                 dialog.operationBuilder()
                         .addOperation("播放", () -> EdAudioService.playAtPosition(i))
-                        .addOperation("收藏至其他歌单",()->{})
+                        .addOperation("收藏至其他歌单",()->{
+                            SongListManagerDialog managerDialog = new SongListManagerDialog(getContext());
+                            managerDialog.setOnClickOverride((holder, list) -> {
+                                if (list.isDirectList()) {
+                                    OperationDialog operationDialog = new OperationDialog(getContext());
+                                    operationDialog.setTitle(list.getName());
+                                    OperationDialog.OperationBuilder operationBuilder = operationDialog.operationBuilder();
+                                    if (list.containsSong(entry)) {
+                                        operationBuilder
+                                                .addOperation("从这个歌单里移除", () -> {
+                                                    list.deleteSong(entry.copy());
+                                                    operationDialog.dismiss();
+                                                    SongListManager.get().infoListChange();
+                                                    Toast.makeText(getContext(), "删除成功", Toast.LENGTH_SHORT).show();
+                                                });
+                                    } else {
+                                        operationBuilder
+                                                .addOperation("添加到这个歌单里", () -> {
+                                                    list.addSong(entry.copy());
+                                                    operationDialog.dismiss();
+                                                    SongListManager.get().infoListChange();
+                                                    Toast.makeText(getContext(), "添加入歌单 " + list.getName(), Toast.LENGTH_SHORT).show();
+                                                });
+                                    }
+
+                                    operationBuilder.build();
+
+                                    operationDialog.show();
+                                } else {
+                                    Toast.makeText(getContext(), "扫描模式的歌单无法手动添加歌曲 " + list.getName(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            managerDialog.show();
+                        })
                         .build();
                 dialog.show();
 

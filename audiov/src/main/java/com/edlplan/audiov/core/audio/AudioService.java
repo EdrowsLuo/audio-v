@@ -112,7 +112,7 @@ public class AudioService implements Runnable {
                 preAudioEntry.stop();
             }
             audioEntry = nextEntry;
-            if (playWhenChanged && loopFlag == LoopFlag.Running) {
+            if (playWhenChanged) {
                playAudio();
             }
             onAudioChangeListener.handle();
@@ -148,9 +148,7 @@ public class AudioService implements Runnable {
         }
         if (serviceStarted) {
             loopFlag = LoopFlag.Running;
-            post(audioService -> {
-                playAudio();
-            });
+            post(audioService -> playAudio());
         } else {
             loopFlag = LoopFlag.Running;
             serviceStarted = true;
@@ -179,7 +177,7 @@ public class AudioService implements Runnable {
         post(a -> onAudioChangeListener.register(listener));
     }
 
-    public void unregiserOnAudioChangeListener(OnAudioChangeListener listener) {
+    public void unregisterOnAudioChangeListener(OnAudioChangeListener listener) {
         post(a -> onAudioChangeListener.unregiser(listener));
     }
 

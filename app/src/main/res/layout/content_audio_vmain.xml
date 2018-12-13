@@ -27,15 +27,14 @@
         <ImageButton
             android:id="@+id/button_play_stop"
             android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_height="48dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="108dp"
-            android:layout_weight="1"
-            android:background="#00000000"
-            android:elevation="5dp"
+            android:layout_marginStart="99dp"
+            android:backgroundTint="#202020"
+            android:elevation="0dp"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/icons8_play_96" />
+            app:srcCompat="@drawable/icons8_pause_96" />
 
         <ImageButton
             android:id="@+id/button_next_song"
@@ -43,8 +42,8 @@
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="82dp"
-            android:background="#00000000"
+            android:layout_marginEnd="91dp"
+            android:backgroundTint="#202020"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/icons8_fast_forward_96" />
 
@@ -55,20 +54,18 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
             android:layout_marginStart="26dp"
-            android:background="#00000000"
+            android:backgroundTint="#202020"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/icons8_rewind_96" />
 
         <ImageButton
             android:id="@+id/open_song_list"
-            android:layout_width="23dp"
-            android:layout_height="25dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginBottom="12dp"
-            android:layout_marginEnd="34dp"
-            android:background="#00000000"
-            android:elevation="0dp"
+            android:layout_marginEnd="25dp"
+            android:backgroundTint="#202020"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/icons8_menu_96" />
 
@@ -81,7 +78,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="10dp"
             android:max="5000"
-            android:progress="2000" />
+            android:progress="0" />
 
         <TextView
             android:id="@+id/song_name"

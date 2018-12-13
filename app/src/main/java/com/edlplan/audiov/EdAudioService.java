@@ -29,11 +29,13 @@ public class EdAudioService {
 
     public static void setSongList(List<SongEntry> newSongList) {
         if (newSongList.size() == 0) {
+            songList.clear();
+            getAudioService().pause();
             return;
         }
         songList.clear();
         songList.addAll(newSongList);
-        getAudioService().changeAudio(AudioVCore.createAudio(songList.get(0).getFilePath()), true);
+        playAtPosition(0);
     }
 
     public static List<SongEntry> getSongList() {
@@ -72,7 +74,6 @@ public class EdAudioService {
 
     private static int floorDiv(int x, int y) {
         int r = x / y;
-        // if the signs are different and modulo not zero, round down
         if ((x ^ y) < 0 && (r * y != x)) {
             r--;
         }

@@ -2,7 +2,7 @@ package com.edlplan.audiov.scan;
 
 import java.io.Serializable;
 
-public class SongEntry implements Serializable {
+public class SongEntry implements Serializable, Cloneable {
 
     private String filePath;
 
@@ -37,5 +37,12 @@ public class SongEntry implements Serializable {
     @Override
     public String toString() {
         return String.format("{\n    path:%s\n    name:%s\n}", filePath, songName);
+    }
+
+    public SongEntry copy() {
+        SongEntry entry = new SongEntry();
+        entry.songName = songName;
+        entry.filePath = filePath;
+        return entry;
     }
 }

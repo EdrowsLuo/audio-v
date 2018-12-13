@@ -97,7 +97,7 @@ public class FolderScanner implements ISongListScanner {
     @Override
     public void initial(JSONObject data) throws JSONException {
         file = new File(GlobalVar.parseValue(data.getString(KEY_FILE)));
-        namePattern = Pattern.compile(data.optString(KEY_NAME_PATTERN));
-        scanDepth = Integer.parseInt(data.getString(KEY_SCAN_DEPTH));
+        namePattern = Pattern.compile(data.optString(KEY_NAME_PATTERN, DEFAULT_PATTERN));
+        scanDepth = Integer.parseInt(data.optString(KEY_SCAN_DEPTH, "0"));
     }
 }

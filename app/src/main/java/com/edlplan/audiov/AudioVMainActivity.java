@@ -1,9 +1,13 @@
 package com.edlplan.audiov;
 
+import android.Manifest;
 import android.animation.TimeInterpolator;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -31,6 +35,7 @@ import com.edlplan.audiov.scan.ScannerEntry;
 import com.edlplan.audiov.scan.SongEntry;
 import com.edlplan.audiov.scan.SongListManager;
 import com.edlplan.audiov.ui.SongListDialog;
+import com.edlplan.audiov.ui.SongListManagerDialog;
 import com.edlplan.audiov.ui.UserStateListenerOverlay;
 
 import org.json.JSONException;
@@ -47,6 +52,20 @@ public class AudioVMainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            }
+        }
+
+
 
         GlobalVar.registerValue(GlobalVar.INTERNAL_PATH, () -> {
             String p = getFilesDir().getAbsolutePath();
@@ -113,9 +132,11 @@ public class AudioVMainActivity extends AppCompatActivity
             if (entry != null) {
                 if (entry.isPlaying()) {
                     EdAudioService.getAudioService().pause();
+                    playStopButton.setImageResource(R.drawable.icons8_play_96);
                     //Toast.makeText(AudioVMainActivity.this, "pause", Toast.LENGTH_SHORT).show();
                 } else {
                     EdAudioService.getAudioService().play();
+                    playStopButton.setImageResource(R.drawable.icons8_pause_96);
                     //Toast.makeText(AudioVMainActivity.this, "play", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -238,6 +259,12 @@ public class AudioVMainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+
+        switch (id) {
+            case R.id.nav_song_list:{
+                new SongListManagerDialog(this).show();
+            }break;
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -211,45 +211,53 @@ public class LegacyAudioVisualizer extends BaseVisualizer {
                 cPan
         );
 
-        float sr = rawrng * 0.3f;
-        beatAngle -= Math.pow(k, 5) * (1 + deltaBeat * 20) * 0.04;
-        if (isBeat) {
-            sr *= 1.2f;
-        }
-
-        float beatX = (float) (rawrng * 0.6 * Math.cos(beatAngle));
-        float beatY = (float) (rawrng * 0.6 * Math.sin(beatAngle));
-
-        double l = Math.hypot(beatX - preBeatX, beatY - preBeatY);
-
-        if (preBeatY != 0) {
-            double ll = minDeltaDis;
-            while (ll < l) {
-                double itp = ll / l;
-                float ir = (float) (sr * (itp + 1) / 2);
-                nowCanvas.drawTexture(
-                        lighting,
-                        0, 0, lighting.getWidth(), lighting.getHeight(),
-                        (float) (beatX * itp + preBeatX * (1 - itp) + nowView.getWidth() / 2 - ir),
-                        (float) (beatY * itp + preBeatY * (1 - itp) + nowView.getHeight() / 2 - ir),
-                        ir * 2, ir * 2,
-                        (float) (1 * itp + clearRate * (1 - itp))
-                );
-                ll += minDeltaDis;
+        {//绘制光标
+            float sr = rawrng * 0.3f;
+            double dta = Math.pow(k, 5) * (1 + deltaBeat * 20) * 0.04;
+            if (dta > 2 * Math.PI) {
+                dta = Math.PI * 3 / 2;
             }
+            beatAngle -= dta;
+            if (isBeat) {
+                sr *= 1.2f;
+            }
+
+            float beatR = rawrng;//(rawrng - 110) * 4 +20;
+            float beatX = (float) (beatR * 0.6 * Math.cos(beatAngle));
+            float beatY = (float) (beatR * 0.6 * Math.sin(beatAngle));
+
+            double l = Math.hypot(beatX - preBeatX, beatY - preBeatY);
+
+            if (preBeatY != 0) {
+                double ll = minDeltaDis;
+                while (ll < l) {
+                    double itp = ll / l;
+                    float ir = (float) (sr * (itp + 1) / 2);
+                    nowCanvas.drawTexture(
+                            lighting,
+                            0, 0, lighting.getWidth(), lighting.getHeight(),
+                            (float) (beatX * itp + preBeatX * (1 - itp) + nowView.getWidth() / 2 - ir),
+                            (float) (beatY * itp + preBeatY * (1 - itp) + nowView.getHeight() / 2 - ir),
+                            ir * 2, ir * 2,
+                            (float) (1 * itp + clearRate * (1 - itp))
+                    );
+                    ll += minDeltaDis;
+                }
+            }
+
+            preBeatX = beatX;
+            preBeatY = beatY;
+
+            nowCanvas.drawTexture(
+                    lighting,
+                    0, 0, lighting.getWidth(), lighting.getHeight(),
+                    beatX + nowView.getWidth() / 2 - sr,
+                    beatY + nowView.getHeight() / 2 - sr,
+                    sr * 2, sr * 2,
+                    1
+            );
         }
 
-        preBeatX = beatX;
-        preBeatY = beatY;
-
-        nowCanvas.drawTexture(
-                lighting,
-                0, 0, lighting.getWidth(), lighting.getHeight(),
-                beatX + nowView.getWidth() / 2 - sr,
-                beatY + nowView.getHeight() / 2 - sr,
-                sr * 2, sr * 2,
-                1
-        );
 
 
 

@@ -17,18 +17,15 @@ public interface ISongListScanner {
      */
     void scan(Consumer<SongEntry> consumer) throws Exception;
 
+    /**
+     * @param data 通过这个JSONObject来初始化这个Scanner
+     * @throws Exception 数据异常
+     */
     void initial(JSONObject data) throws Exception;
 
     default List<SongEntry> scanAsList() throws Exception {
         ArrayList<SongEntry> list = new ArrayList<>();
         scan(list::add);
         return list;
-    }
-
-    /**
-     * 删除这个Scanner时被调用，用来删除一些缓存文件
-     */
-    default void onDelete() {
-
     }
 }

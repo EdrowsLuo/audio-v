@@ -3,29 +3,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <item android:title="General">
+    <item android:title="常规">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:id="@+id/nav_song_list"
+                android:icon="@drawable/icons8_music_folder_96"
+                android:title="歌单" />
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:id="@+id/nav_online_modules"
+                android:icon="@drawable/icons8_internet_96"
+                android:title="在线模块" />
         </menu>
     </item>
 
-    <item android:title="Setting">
+    <item android:title="设置">
         <menu>
             <item
-                android:id="@+id/nav_share_x"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:id="@+id/nav_setting_visual"
+                android:icon="@drawable/jump_circle"
+                android:title="视觉设置" />
             <item
-                android:id="@+id/nav_send_x"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:id="@+id/nav_setting_audio"
+                android:icon="@drawable/icons8_timeline_96"
+                android:title="音乐设置" />
+            <item
+                android:id="@+id/nav_setting_utils"
+                android:icon="@drawable/icons8_settings_96"
+                android:title="杂项" />
         </menu>
     </item>
 

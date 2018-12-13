@@ -15,9 +15,19 @@ import java.util.List;
 
 public class SongList implements Serializable {
 
+    public static final String EXT_DESCRIPTION = "description";
+
+    public static final String EXT_PINNED = "pinned";
+
+    public static final String EXT_FULLY_EDITABLE = "fullyEditable";
+
     private ScannerEntry scannerEntry;
 
     private transient ArrayList<SongEntry> cachedResult;
+
+    private transient boolean enable = true;
+
+    private transient String errorMessage = null;
 
     private String name;
 
@@ -26,6 +36,30 @@ public class SongList implements Serializable {
     public SongList(String name, ScannerEntry scannerEntry) {
         this.scannerEntry = scannerEntry;
         this.name = name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 
     public void setAlwaysUpdateWhenLoad(boolean alwaysUpdateWhenLoad) {
@@ -37,6 +71,14 @@ public class SongList implements Serializable {
     }
 
     public List<SongEntry> getCachedResult() {
+        if (cachedResult == null) {
+            try {
+                loadFromCache();
+            } catch (Exception e) {
+                e.printStackTrace();
+                cachedResult = new ArrayList<>();
+            }
+        }
         return cachedResult;
     }
 
@@ -53,6 +95,8 @@ public class SongList implements Serializable {
             Object o = inputStream.readObject();
             if (o != null) {
                 cachedResult = (ArrayList<SongEntry>) o;
+            } else {
+                cachedResult = new ArrayList<>();
             }
         } catch (Exception e) {
             cachedResult = new ArrayList<>();
@@ -66,12 +110,23 @@ public class SongList implements Serializable {
         writer.close();
     }
 
+    public ScannerEntry getScannerEntry() {
+        return scannerEntry;
+    }
+
     public void scan() throws Exception {
-        if (isDirectList()) {
-            loadFromCache();
-        } else {
-            cachedResult = new ArrayList<>(scannerEntry.createScanner().scanAsList());
+        try {
+            enable = true;
+            if (isDirectList()) {
+                loadFromCache();
+            } else {
+                cachedResult = new ArrayList<>(scannerEntry.createScanner().scanAsList());
+            }
+        } catch (Exception e) {
+            enable = false;
+            throw e;
         }
+
     }
 
     public boolean isDirectList() {
@@ -81,6 +136,25 @@ public class SongList implements Serializable {
     private void checkDirectList() {
         if (!isDirectList()) {
             throw new IllegalStateException("错误的操作一个非Direct的SongList");
+        }
+    }
+
+    public boolean containsSong(SongEntry entry) {
+        for (SongEntry entryx : cachedResult) {
+            if (entryx.equals(entry)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void deleteSong(SongEntry entry) {
+        checkDirectList();
+        cachedResult.remove(entry);
+        try {
+            updateCache();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -111,4 +185,17 @@ public class SongList implements Serializable {
             e.printStackTrace();
         }
     }
+
+    public void clearCache() {
+        getCacheFile().delete();
+    }
+
+    public String getDescription() {
+        return scannerEntry.getInitialValue().optString(EXT_DESCRIPTION, null);
+    }
+
+    public boolean isPinned() {
+        return scannerEntry.getInitialValue().optBoolean(EXT_PINNED, false);
+    }
+
 }

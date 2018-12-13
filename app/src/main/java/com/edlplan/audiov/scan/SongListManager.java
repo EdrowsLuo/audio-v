@@ -1,6 +1,8 @@
 package com.edlplan.audiov.scan;
 
 import com.edlplan.audiov.GlobalVar;
+import com.edlplan.audiov.core.utils.Consumer;
+import com.edlplan.audiov.core.utils.ListenerGroup;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,12 +14,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SongListManager {
 
-    private static int VERSION = 100;
+    private static int VERSION = 101;
 
     private static SongListManager manager;
+
+    private ListenerGroup<Consumer<SongListManager>> onSongListSateChangeListener =
+            ListenerGroup.create(songListManagerConsumer -> songListManagerConsumer.consume(this));
 
     public static SongListManager get() {
         if (manager == null) {
@@ -37,12 +43,25 @@ public class SongListManager {
         return file;
     }
 
+    public ArrayList<SongList> getSongLists() {
+        return songLists;
+    }
+
     public int size() {
         return songLists.size();
     }
 
     public SongList getSongList(int i) {
         return songLists.get(i);
+    }
+
+    public boolean containsName(String name) {
+        for (SongList list : songLists) {
+            if (list.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void initialCacheFile(File file) {
@@ -52,30 +71,62 @@ public class SongListManager {
             e.printStackTrace();
             return;
         }
+        File ccd = new File(GlobalVar.parseValue("#internal_path#/songListCache/"));
+        if (!ccd.exists()) {
+            ccd.mkdirs();
+        }
+        for (File f : ccd.listFiles()) {
+            if (f.isFile()) {
+                f.delete();
+            }
+        }
         ArrayList<SongList> tmp = new ArrayList<>();
+        {
+            ScannerEntry entry = new ScannerEntry();
+            JSONObject cfg = new JSONObject();
+            try {
+                cfg.put(FolderScanner.KEY_SCAN_DEPTH, 0 + "");
+                cfg.put(FolderScanner.KEY_NAME_PATTERN, FolderScanner.DEFAULT_PATTERN);
+                cfg.put(FolderScanner.KEY_FILE, "#external_path#/netease/cloudmusic/Music");
+                cfg.put(SongList.EXT_DESCRIPTION, "扫描网易云目录的歌曲");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            entry.setInitialValue(cfg);
+            entry.setScannerklass(FolderScanner.class);
 
-        ScannerEntry entry = new ScannerEntry();
-        JSONObject cfg = new JSONObject();
-        try {
-            cfg.put(FolderScanner.KEY_SCAN_DEPTH, 0 + "");
-            cfg.put(FolderScanner.KEY_NAME_PATTERN, FolderScanner.DEFAULT_PATTERN);
-            cfg.put(FolderScanner.KEY_FILE, "#external_path#/netease/cloudmusic/Music");
-        } catch (JSONException e) {
-            e.printStackTrace();
+            SongList wyyList = new SongList("网易云", entry);
+            wyyList.setAlwaysUpdateWhenLoad(true);
+            try {
+                wyyList.scan();
+                wyyList.updateCache();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            tmp.add(wyyList);
         }
-        entry.setInitialValue(cfg);
-        entry.setScannerklass(FolderScanner.class);
+        {
+            ScannerEntry entry = new ScannerEntry();
+            JSONObject cfg = new JSONObject();
+            try {
+                cfg.put(SongList.EXT_DESCRIPTION, "你默认的歌单");
+                cfg.put(SongList.EXT_PINNED, true);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            entry.setInitialValue(cfg);
+            entry.setScannerklass(DirctCacheScanner.class);
 
-        SongList wyyList = new SongList("网易云", entry);
-        wyyList.setAlwaysUpdateWhenLoad(true);
-        try {
-            wyyList.scan();
-            wyyList.updateCache();
-        } catch (Exception e) {
-            e.printStackTrace();
+            SongList list = new SongList("默认收藏夹", entry);
+            try {
+                list.updateCache();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            tmp.add(list);
         }
-
-        tmp.add(wyyList);
 
         try {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
@@ -99,9 +150,16 @@ public class SongListManager {
             }
             songLists = (ArrayList<SongList>) inputStream.readObject();
             for (SongList list : songLists) {
-                if (list.isAlwaysUpdateWhenLoad()) {
-                    list.scan();
-                    list.updateCache();
+                list.setEnable(true);
+                if (list.isAlwaysUpdateWhenLoad() && !list.isDirectList()) {
+                    try {
+                        list.scan();
+                        list.updateCache();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        list.setEnable(false);
+                        list.setErrorMessage(e.toString());
+                    }
                 } else {
                     list.loadFromCache();
                 }
@@ -110,7 +168,9 @@ public class SongListManager {
             e.printStackTrace();
             initialCacheFile(file);
             loadFromCache();
+            return;
         }
+        infoListChange();
     }
 
     public void updateCache() {
@@ -129,6 +189,7 @@ public class SongListManager {
         if (idx != -1) {
             songLists.remove(list);
             updateCache();
+            onSongListSateChangeListener.handle();
         }
     }
 
@@ -136,7 +197,19 @@ public class SongListManager {
         if (!songLists.contains(list)) {
             songLists.add(list);
             updateCache();
+            onSongListSateChangeListener.handle();
         }
     }
 
+    public void registerOnChangeListener(Consumer<SongListManager> consumer) {
+        onSongListSateChangeListener.register(consumer);
+    }
+
+    public void unregisterOnChangeListener(Consumer<SongListManager> consumer) {
+        onSongListSateChangeListener.unregiser(consumer);
+    }
+
+    public void infoListChange() {
+        onSongListSateChangeListener.handle();
+    }
 }

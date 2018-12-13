@@ -52,6 +52,8 @@ public class OperationDialog extends Dialog {
 
             layoutManager.setOrientation(OrientationHelper.VERTICAL);
 
+            layoutManager.setSmoothScrollbarEnabled(true);
+
             recyclerView.setAdapter(new ListAdapter(operationNodes));
         }
 
@@ -90,7 +92,7 @@ public class OperationDialog extends Dialog {
         @Override
         public void onBindViewHolder(@NonNull EntryHolder entryHolder, int i) {
             entryHolder.name.setText(operationNodes.get(i).name);
-            entryHolder.button.setOnClickListener(v -> operationNodes.get(i).runnable.run());
+            entryHolder.body.setOnClickListener(v -> operationNodes.get(i).runnable.run());
         }
 
         @Override

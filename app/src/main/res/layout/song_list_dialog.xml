@@ -15,6 +15,9 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/song_list_body"
+        android:scrollbars="vertical"
+        android:scrollbarSize="10dp"
+        android:scrollbarStyle="insideOverlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button"
