@@ -12,24 +12,23 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.edlplan.audiov.EdAudioService;
+import com.edlplan.audiov.EdlAudioService;
 import com.edlplan.audiov.R;
 import com.edlplan.audiov.core.audio.IAudioEntry;
 import com.edlplan.audiov.core.audio.OnAudioChangeListener;
 import com.edlplan.audiov.scan.SongEntry;
 import com.edlplan.audiov.scan.SongListManager;
 
-public class SongListDialog extends Dialog implements OnAudioChangeListener{
+public class SongListDialog extends Dialog implements OnAudioChangeListener {
 
     SongListAdapter adapter;
-
-    OnAudioChangeListener onAudioChangeListener;
 
     RecyclerView recyclerView;
 
     public SongListDialog(@NonNull Context context) {
         super(context, R.style.Theme_MaterialComponents_BottomSheetDialog);
         setContentView(R.layout.song_list_dialog);
+        setCanceledOnTouchOutside(true);
 
         findViewById(R.id.button).setOnClickListener(v -> {
             SongListManagerDialog dialog = new SongListManagerDialog(getContext());
@@ -38,7 +37,7 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
                     Toast.makeText(getContext(), "这个歌单好像是空的哎", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                EdAudioService.setSongList(list.getCachedResult());
+                EdlAudioService.setSongList(list);
                 dialog.dismiss();
             });
             dialog.show();
@@ -56,15 +55,17 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
 
         recyclerView.setAdapter(adapter = new SongListAdapter());
 
-        recyclerView.scrollToPosition(EdAudioService.getPlayingIdx());
+        if (EdlAudioService.getPlayingIdx() != -1) {
+            recyclerView.scrollToPosition(EdlAudioService.getPlayingIdx());
+        }
 
-        EdAudioService.getAudioService().registerOnAudioChangeListener(this);
+        EdlAudioService.getAudioService().registerOnAudioChangeListener(this);
     }
 
     @Override
     public void dismiss() {
         super.dismiss();
-        EdAudioService.getAudioService().unregisterOnAudioChangeListener(this);
+        EdlAudioService.getAudioService().unregisterOnAudioChangeListener(this);
     }
 
     @Override
@@ -98,28 +99,42 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
 
         @Override
         public void onBindViewHolder(@NonNull SongListEntryHolder songListEntryHolder, int i) {
-            SongEntry entry = EdAudioService.getSongList().get(i);
+            SongEntry entry = EdlAudioService.getSongList().get(i);
             songListEntryHolder.songName.setText(entry.getSongName());
-            if (i == EdAudioService.getPlayingIdx()) {
+            if (i == EdlAudioService.getPlayingIdx()) {
                 songListEntryHolder.body.setBackgroundColor(0xFF999999);
             } else {
                 songListEntryHolder.body.setBackgroundColor(0xFF333333);
             }
-            songListEntryHolder.body.setOnClickListener(v -> EdAudioService.playAtPosition(i));
+            songListEntryHolder.body.setOnClickListener(v -> EdlAudioService.playAtPosition(i));
             songListEntryHolder.body.setOnLongClickListener(v -> {
                 OperationDialog dialog = new OperationDialog(v.getContext());
                 OnAudioChangeListener listener = (pre, next) -> dialog.dismiss();
-                EdAudioService.getAudioService().registerOnAudioChangeListener(listener);
+                EdlAudioService.getAudioService().registerOnAudioChangeListener(listener);
 
                 dialog.setTitle(entry.getSongName());
                 dialog.setOnDismissListener(
-                        dialog1 -> EdAudioService.getAudioService().post(
+                        dialog1 -> EdlAudioService.getAudioService().post(
                                 audioService -> audioService.unregisterOnAudioChangeListener(listener)));
 
-                dialog.operationBuilder()
-                        .addOperation("播放", () -> EdAudioService.playAtPosition(i))
-                        .addOperation("收藏至其他歌单",()->{
+                OperationDialog.OperationBuilder builder = dialog.operationBuilder();
+
+                builder.addOperation("播放", () -> EdlAudioService.playAtPosition(i))
+                        .addOperation("收藏至其他歌单", () -> {
                             SongListManagerDialog managerDialog = new SongListManagerDialog(getContext());
+                            managerDialog.setOnLongClickOverride((holder, list) -> {
+                                if (list.isDirectList()) {
+                                    if (list.containsSong(entry)) {
+                                        list.deleteSong(entry.copy());
+                                        SongListManager.get().infoListChange();
+                                        Toast.makeText(getContext(), "删除成功", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        list.addSong(entry.copy());
+                                        SongListManager.get().infoListChange();
+                                        Toast.makeText(getContext(), "添加入歌单 " + list.getName(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                             managerDialog.setOnClickOverride((holder, list) -> {
                                 if (list.isDirectList()) {
                                     OperationDialog operationDialog = new OperationDialog(getContext());
@@ -151,8 +166,18 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
                                 }
                             });
                             managerDialog.show();
-                        })
-                        .build();
+                        });
+
+                if (EdlAudioService.getRes() != null && EdlAudioService.getRes().isDirectList()) {
+                    builder.addOperation("从当前歌单里删除", () -> {
+                        EdlAudioService.getRes().deleteSong(entry);
+                        EdlAudioService.notifySongListChange();
+                        notifyDataSetChanged();
+                        dialog.dismiss();
+                    });
+                }
+
+                builder.build();
                 dialog.show();
 
                 return true;
@@ -161,7 +186,7 @@ public class SongListDialog extends Dialog implements OnAudioChangeListener{
 
         @Override
         public int getItemCount() {
-            return EdAudioService.getSongList().size();
+            return EdlAudioService.getSongList().size();
         }
     }
 

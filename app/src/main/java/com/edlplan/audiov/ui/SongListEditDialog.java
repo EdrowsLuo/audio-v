@@ -13,7 +13,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.edlplan.audiov.R;
-import com.edlplan.audiov.scan.DirctCacheScanner;
+import com.edlplan.audiov.scan.DirectCacheScanner;
 import com.edlplan.audiov.scan.ISongListScanner;
 import com.edlplan.audiov.scan.ScannerEntry;
 import com.edlplan.audiov.scan.ScannerTypeMapper;
@@ -32,7 +32,6 @@ public class SongListEditDialog extends Dialog {
 
     private SongList songList;
 
-
     public SongListEditDialog(@NonNull Context context, SongList list) {
         super(context, R.style.Theme_Design_BottomSheetDialog);
         setContentView(R.layout.song_list_edit_dialog);
@@ -40,7 +39,7 @@ public class SongListEditDialog extends Dialog {
         if (isNewList) {
             ScannerEntry entry = new ScannerEntry();
             entry.setInitialValue(new JSONObject());
-            entry.setScannerklass(DirctCacheScanner.class);
+            entry.setScannerklass(DirectCacheScanner.class);
             songList = new SongList("", entry);
         } else {
             songList = list;
@@ -59,12 +58,14 @@ public class SongListEditDialog extends Dialog {
         RadioGroup type = findViewById(R.id.song_list_type);
         type.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
-                case R.id.normal_song_list:{
+                case R.id.normal_song_list: {
                     findViewById(R.id.custom_values).setVisibility(View.GONE);
-                }break;
-                case R.id.custom_song_list:{
+                }
+                break;
+                case R.id.custom_song_list: {
                     findViewById(R.id.custom_values).setVisibility(View.VISIBLE);
-                }break;
+                }
+                break;
             }
         });
 

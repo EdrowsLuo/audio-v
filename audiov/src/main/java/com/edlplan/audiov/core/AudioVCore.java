@@ -24,14 +24,6 @@ public class AudioVCore {
         return instance;
     }
 
-    public PlatformGraphics graphics() {
-        return graphicsPlugin;
-    }
-
-    public PlatformAudio audio() {
-        return audioPlugin;
-    }
-
     public static IAudioEntry createAudio(File file) {
         return instance.audio().getAudioFactory().create(file);
     }
@@ -40,18 +32,27 @@ public class AudioVCore {
         return instance.audio().getAudioFactory().create(file);
     }
 
+    public PlatformGraphics graphics() {
+        return graphicsPlugin;
+    }
+
+    public PlatformAudio audio() {
+        return audioPlugin;
+    }
+
     /**
      * 获取对应平台的Graphics相关的类的接口
      */
-    public interface PlatformGraphics{
+    public interface PlatformGraphics {
         ATexture.AFactory getTextureFactory();
+
         ACanvas.AFactory getCanvasFactory();
     }
 
     /**
      * 获取音频相关的封装
      */
-    public interface PlatformAudio{
+    public interface PlatformAudio {
         IAudioEntry.AFactory getAudioFactory();
     }
 }

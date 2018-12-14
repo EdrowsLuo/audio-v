@@ -12,6 +12,7 @@ public interface ISongListScanner {
 
     /**
      * 按自定义的规则扫描歌曲
+     *
      * @param consumer 接受扫描的的铺面的接口
      * @throws Exception 可能抛出任何错误x
      */

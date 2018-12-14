@@ -12,20 +12,13 @@ import java.util.LinkedList;
  */
 public class AudioService implements Runnable {
 
-    private LoopFlag loopFlag = LoopFlag.Pause;
-
-    private boolean serviceStarted = false;
-
-    private Thread holdingThread;
-
-    private int loopDeltaTimeMS = 50;
-
-    private IAudioEntry preAudioEntry;
-
-    private IAudioEntry audioEntry;
-
     private final LinkedList<Consumer<AudioService>> postEvents = new LinkedList<>();
-
+    private LoopFlag loopFlag = LoopFlag.Pause;
+    private boolean serviceStarted = false;
+    private Thread holdingThread;
+    private int loopDeltaTimeMS = 50;
+    private IAudioEntry preAudioEntry;
+    private IAudioEntry audioEntry;
     private ListenerGroup<OnAudioChangeListener> onAudioChangeListener
             = ListenerGroup.create(l -> l.onAudioChange(preAudioEntry, audioEntry));
 
@@ -99,7 +92,7 @@ public class AudioService implements Runnable {
         changeAudio(AudioVCore.getInstance().audio().getAudioFactory().create(file), playWhenChanged);
     }
 
-    public void changeAudio(IAudioEntry nextEntry,boolean playWhenChanged) {
+    public void changeAudio(IAudioEntry nextEntry, boolean playWhenChanged) {
         if (loopFlag == LoopFlag.Stop) {
             return;
         }
@@ -113,7 +106,7 @@ public class AudioService implements Runnable {
             }
             audioEntry = nextEntry;
             if (playWhenChanged) {
-               playAudio();
+                playAudio();
             }
             onAudioChangeListener.handle();
             preAudioEntry = null;

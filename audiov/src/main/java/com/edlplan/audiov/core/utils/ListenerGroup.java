@@ -7,6 +7,18 @@ public abstract class ListenerGroup<T> {
 
     private List<T> listeners = new LinkedList<>();
 
+    /**
+     * @param consumer 通过这个函数来代替apply时做的事
+     */
+    public static <T> ListenerGroup<T> create(Consumer<T> consumer) {
+        return new ListenerGroup<T>() {
+            @Override
+            protected void apply(T t) {
+                consumer.consume(t);
+            }
+        };
+    }
+
     public void handle() {
         for (T t : listeners) {
             apply(t);
@@ -25,14 +37,8 @@ public abstract class ListenerGroup<T> {
         }
     }
 
+    /**
+     * 触发一个监听器
+     */
     protected abstract void apply(T t);
-
-    public static <T> ListenerGroup<T> create(Consumer<T> consumer) {
-        return new ListenerGroup<T>() {
-            @Override
-            protected void apply(T t) {
-                consumer.consume(t);
-            }
-        };
-    }
 }

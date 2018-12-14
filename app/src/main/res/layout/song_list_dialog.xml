@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="200dp">
+    android:maxHeight="300dp">
 
     <Button
         android:id="@+id/button"
@@ -15,13 +14,13 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/song_list_body"
-        android:scrollbars="vertical"
-        android:scrollbarSize="10dp"
-        android:scrollbarStyle="insideOverlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:scrollbarSize="10dp"
+        android:scrollbarStyle="insideOverlay"
+        android:scrollbars="vertical" />
 
 
 </RelativeLayout>

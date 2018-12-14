@@ -45,14 +45,10 @@ public interface IAudioEntry {
 
     /**
      * 跳转进度
+     *
      * @param ms 跳转到的位置，单位ms
      */
     void seekTo(double ms);
-
-    /**
-     * @param volume 要设置的音量，为0~1的值
-     */
-    void setVolume(float volume);
 
     /**
      * @return 设置的音量
@@ -60,15 +56,21 @@ public interface IAudioEntry {
     float getVolume();
 
     /**
+     * @param volume 要设置的音量，为0~1的值
+     */
+    void setVolume(float volume);
+
+    /**
      * 获取频谱数据
+     *
      * @param array 接受数据的数组
-     * @param type 要获取的数据长度，属于FLAG_FFTxxxx格式的全局变量之一
+     * @param type  要获取的数据长度，属于FLAG_FFTxxxx格式的全局变量之一
      */
     void getFFT(float[] array, int type);
 
     boolean isPlaying();
 
-    abstract class AFactory{
+    abstract class AFactory {
         /**
          * @param file 音频文件
          * @return 返回的音频对象

@@ -16,12 +16,12 @@ public class SongEntry implements Serializable, Cloneable {
         this.filePath = filePath;
     }
 
-    public void setSongName(String songName) {
-        this.songName = songName;
-    }
-
     public String getSongName() {
         return songName;
+    }
+
+    public void setSongName(String songName) {
+        this.songName = songName;
     }
 
     @Override

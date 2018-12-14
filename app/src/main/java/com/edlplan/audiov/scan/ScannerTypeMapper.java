@@ -8,7 +8,7 @@ public class ScannerTypeMapper {
 
     static {
         map.put(FolderScanner.class.getSimpleName(), FolderScanner.class.getName());
-        map.put(DirctCacheScanner.class.getSimpleName(), DirctCacheScanner.class.getName());
+        map.put(DirectCacheScanner.class.getSimpleName(), DirectCacheScanner.class.getName());
     }
 
     public static String map(String raw) {

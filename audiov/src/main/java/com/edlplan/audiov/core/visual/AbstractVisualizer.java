@@ -1,7 +1,6 @@
 package com.edlplan.audiov.core.visual;
 
 import com.edlplan.audiov.core.audio.IAudioEntry;
-import com.edlplan.audiov.core.graphics.ACanvas;
 import com.edlplan.audiov.core.graphics.ATexture;
 
 /**
@@ -29,6 +28,7 @@ public abstract class AbstractVisualizer {
 
     /**
      * 当音频发生切换的时候被调用
+     *
      * @param entry 切换到的音频
      */
     protected void onChangeAudio(IAudioEntry entry) {
@@ -45,5 +45,8 @@ public abstract class AbstractVisualizer {
      */
     public abstract void draw();
 
+    /**
+     * @return 绘制的结果
+     */
     public abstract ATexture getResult();
 }

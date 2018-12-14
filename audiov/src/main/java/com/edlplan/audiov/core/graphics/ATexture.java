@@ -6,14 +6,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * 抽象绘制的目标材质，EdGameFramework对应GLTexture，android对应Bitmap
  */
 public abstract class ATexture {
 
+
+    public static AFactory getFactory() {
+        return AudioVCore.getInstance().graphics().getTextureFactory();
+    }
 
     /**
      * @return 材质的宽度
@@ -25,18 +27,13 @@ public abstract class ATexture {
      */
     public abstract int getHeight();
 
-
-    public static AFactory getFactory() {
-        return AudioVCore.getInstance().graphics().getTextureFactory();
-    }
-
-
     /**
      * 创建Atexture的工厂
      */
     public static abstract class AFactory {
         /**
          * 创建一个空材质，在反射中使用，子类必须继承
+         *
          * @param w 创建的材质的宽
          * @param h 创建的材质的高
          */
@@ -44,7 +41,8 @@ public abstract class ATexture {
 
         /**
          * 通过解析一组数据来创建材质
-         * @param data 源数据，可能是读取自文件
+         *
+         * @param data   源数据，可能是读取自文件
          * @param offset 开始位置偏移
          * @param length 数据长度
          */
@@ -53,8 +51,9 @@ public abstract class ATexture {
 
         /**
          * 从文件创建材质
+         *
          * @param f 文件
-         * @return  创建的材质
+         * @return 创建的材质
          * @throws IOException 读取文件出错时抛出
          */
         public ATexture createFromFile(File f) throws IOException {

@@ -7,8 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class FolderScanner implements ISongListScanner {
@@ -33,33 +31,34 @@ public class FolderScanner implements ISongListScanner {
 
     }
 
-    public void setNamePattern(Pattern namePattern) {
-        this.namePattern = namePattern;
-    }
-
     public Pattern getNamePattern() {
         return namePattern;
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    public void setNamePattern(Pattern namePattern) {
+        this.namePattern = namePattern;
     }
 
     public File getFile() {
         return file;
     }
 
-    /**
-     * 设置扫描的最大深度，-1时为无限制。
-     * 例如设置为0时只扫描当前目录
-     * @param scanDepth 目标深度
-     */
-    public void setScanDepth(int scanDepth) {
-        this.scanDepth = scanDepth;
+    public void setFile(File file) {
+        this.file = file;
     }
 
     public int getScanDepth() {
         return scanDepth;
+    }
+
+    /**
+     * 设置扫描的最大深度，-1时为无限制。
+     * 例如设置为0时只扫描当前目录
+     *
+     * @param scanDepth 目标深度
+     */
+    public void setScanDepth(int scanDepth) {
+        this.scanDepth = scanDepth;
     }
 
     protected String parseNameOfFile(File file) {

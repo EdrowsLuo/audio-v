@@ -7,28 +7,27 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Serializable;
 
-public class ScannerEntry implements Externalizable{
+public class ScannerEntry implements Externalizable {
 
     private String scannerklass;
 
     private JSONObject initialValue;
 
-    public void setInitialValue(JSONObject initialValue) {
-        this.initialValue = initialValue;
-    }
-
     public JSONObject getInitialValue() {
         return initialValue;
     }
 
-    public void setScannerklass(Class<? extends ISongListScanner> scannerklass) {
-        this.scannerklass = scannerklass.getCanonicalName();
+    public void setInitialValue(JSONObject initialValue) {
+        this.initialValue = initialValue;
     }
 
     public String getScannerklass() {
         return scannerklass;
+    }
+
+    public void setScannerklass(Class<? extends ISongListScanner> scannerklass) {
+        this.scannerklass = scannerklass.getCanonicalName();
     }
 
     public ISongListScanner createScanner() throws Exception {

@@ -54,7 +54,7 @@ public class UserStateListenerOverlay extends View {
         }
     }
 
-    public void checkUserLeave() {
+    private void checkUserLeave() {
         postDelayed(() -> {
             if (userOperating && SystemClock.uptimeMillis() - latestOperateTime > noActionTime) {
                 userOperating = false;

@@ -15,7 +15,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.edlplan.audiov.EdAudioService;
+import com.edlplan.audiov.EdlAudioService;
 import com.edlplan.audiov.R;
 import com.edlplan.audiov.core.utils.Consumer;
 import com.edlplan.audiov.scan.SongList;
@@ -28,6 +28,8 @@ public class SongListManagerDialog extends Dialog {
     Consumer<SongListManager> onListChange;
 
     OnClickOverride onClickOverride;
+
+    OnClickOverride onLongClickOverride;
 
     SMAdapter adapter;
 
@@ -58,6 +60,11 @@ public class SongListManagerDialog extends Dialog {
 
     }
 
+    public void setOnLongClickOverride(OnClickOverride onLongClickOverride) {
+        this.onLongClickOverride = onLongClickOverride;
+        adapter.notifyDataSetChanged();
+    }
+
     public void setOnClickOverride(OnClickOverride onClickOverride) {
         this.onClickOverride = onClickOverride;
         adapter.notifyDataSetChanged();
@@ -69,7 +76,11 @@ public class SongListManagerDialog extends Dialog {
         SongListManager.get().unregisterOnChangeListener(onListChange);
     }
 
-    public static class EntryHolder extends RecyclerView.ViewHolder{
+    public interface OnClickOverride {
+        void onClick(EntryHolder holder, SongList list);
+    }
+
+    public static class EntryHolder extends RecyclerView.ViewHolder {
 
         private View body;
 
@@ -88,7 +99,6 @@ public class SongListManagerDialog extends Dialog {
         }
 
     }
-
 
     public class SMAdapter extends RecyclerView.Adapter<EntryHolder> {
 
@@ -123,91 +133,100 @@ public class SongListManagerDialog extends Dialog {
             }
 
             //if (list.isEnable()) {
-                if (onClickOverride == null) {
-                    entryHolder.body.setOnClickListener(v -> {
-                        OperationDialog dialog = new OperationDialog(getContext());
-                        dialog.setTitle(list.getName());
-                        OperationDialog.OperationBuilder operationBuilder = dialog.operationBuilder();
+            if (onClickOverride == null) {
+                entryHolder.body.setOnClickListener(v -> {
+                    OperationDialog dialog = new OperationDialog(getContext());
+                    dialog.setTitle(list.getName());
+                    OperationDialog.OperationBuilder operationBuilder = dialog.operationBuilder();
 
-                        operationBuilder.addOperation("播放当前歌单", () -> {
-                            EdAudioService.setSongList(list.getCachedResult());
+                    operationBuilder.addOperation("播放当前歌单", () -> {
+                        EdlAudioService.setSongList(list.getCachedResult());
+                        dialog.dismiss();
+                    });
+
+                    if (!list.isDirectList()) {
+                        operationBuilder.addOperation("刷新数据", () -> {
+                            LoadingDialog loadingDialog = new LoadingDialog(getContext());
+                            (new Thread(() -> {
+                                try {
+                                    list.scan();
+                                    list.updateCache();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    list.setEnable(false);
+                                    list.setErrorMessage(e.getMessage());
+                                    recyclerView.post(SongListManager.get()::infoListChange);
+                                }
+                                recyclerView.post(() -> {
+                                    loadingDialog.dismiss();
+                                    Toast.makeText(getContext(), "刷新成功", Toast.LENGTH_SHORT).show();
+                                });
+                            })).start();
+                            loadingDialog.show();
+                        });
+                    }
+
+                    if (i != 0) {
+                        operationBuilder.addOperation("歌单上移", () -> {
+                            SongList pre = SongListManager.get().getSongList(i - 1);
+                            SongListManager.get().getSongLists().set(i, pre);
+                            SongListManager.get().getSongLists().set(i - 1, list);
+                            SongListManager.get().updateCache();
+                            SongListManager.get().infoListChange();
                             dialog.dismiss();
                         });
+                    }
 
-                        if (!list.isDirectList()) {
-                            operationBuilder.addOperation("刷新数据", () -> {
-                                LoadingDialog loadingDialog = new LoadingDialog(getContext());
-                                (new Thread(() -> {
-                                    try {
-                                        list.scan();
-                                        list.updateCache();
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                        list.setEnable(false);
-                                        list.setErrorMessage(e.getMessage());
-                                        recyclerView.post(SongListManager.get()::infoListChange);
-                                    }
-                                    recyclerView.post(() -> {
-                                        loadingDialog.dismiss();
-                                        Toast.makeText(getContext(), "刷新成功", Toast.LENGTH_SHORT).show();
-                                    });
-                                })).start();
-                                loadingDialog.show();
-                            });
-                        }
-
-                        if (i != 0) {
-                            operationBuilder.addOperation("歌单上移", () -> {
-                                SongList pre = SongListManager.get().getSongList(i - 1);
-                                SongListManager.get().getSongLists().set(i, pre);
-                                SongListManager.get().getSongLists().set(i - 1, list);
-                                SongListManager.get().updateCache();
-                                SongListManager.get().infoListChange();
-                                dialog.dismiss();
-                            });
-                        }
-
-                        if (i != SongListManager.get().size() - 1) {
-                            operationBuilder.addOperation("歌单下移", () -> {
-                                SongList pre = SongListManager.get().getSongList(i + 1);
-                                SongListManager.get().getSongLists().set(i, pre);
-                                SongListManager.get().getSongLists().set(i + 1, list);
-                                SongListManager.get().updateCache();
-                                SongListManager.get().infoListChange();
-                                dialog.dismiss();
-                            });
-                        }
-
-                        operationBuilder.addOperation("编辑原始数据", () -> {
-                            SongListEditDialog editDialog = new SongListEditDialog(getContext(), list);
-                            editDialog.show();
+                    if (i != SongListManager.get().size() - 1) {
+                        operationBuilder.addOperation("歌单下移", () -> {
+                            SongList pre = SongListManager.get().getSongList(i + 1);
+                            SongListManager.get().getSongLists().set(i, pre);
+                            SongListManager.get().getSongLists().set(i + 1, list);
+                            SongListManager.get().updateCache();
+                            SongListManager.get().infoListChange();
+                            dialog.dismiss();
                         });
+                    }
 
-                        if (!list.isPinned()) {
-                            operationBuilder.addOperation("删除", () -> {
-                                OperationDialog sure = new OperationDialog(getContext());
-                                sure.setTitle("删除歌单");
-                                sure.operationBuilder()
-                                        .addOperation("确认？", ()->{
-                                            SongListManager.get().deleteSongList(list);
-                                            recyclerView.post(SongListManager.get()::infoListChange);
-                                            sure.dismiss();
-                                            dialog.dismiss();
-                                            dismiss();
-                                        })
-                                        .build();
-                                sure.show();
-                            });
-                        }
-
-
-                        operationBuilder.build();
-
-                        dialog.show();
+                    operationBuilder.addOperation("编辑原始数据", () -> {
+                        SongListEditDialog editDialog = new SongListEditDialog(getContext(), list);
+                        editDialog.show();
                     });
-                } else {
-                    entryHolder.body.setOnClickListener(v -> onClickOverride.onClick(entryHolder, list));
-                }
+
+                    if (!list.isPinned()) {
+                        operationBuilder.addOperation("删除", () -> {
+                            OperationDialog sure = new OperationDialog(getContext());
+                            sure.setTitle("删除歌单");
+                            sure.operationBuilder()
+                                    .addOperation("确认？", () -> {
+                                        SongListManager.get().deleteSongList(list);
+                                        recyclerView.post(SongListManager.get()::infoListChange);
+                                        sure.dismiss();
+                                        dialog.dismiss();
+                                        dismiss();
+                                    })
+                                    .build();
+                            sure.show();
+                        });
+                    }
+
+
+                    operationBuilder.build();
+
+                    dialog.show();
+                });
+            } else {
+                entryHolder.body.setOnClickListener(v -> onClickOverride.onClick(entryHolder, list));
+            }
+
+            if (onLongClickOverride == null) {
+                entryHolder.body.setOnLongClickListener(v -> false);
+            } else {
+                entryHolder.body.setOnLongClickListener(v -> {
+                    onLongClickOverride.onClick(entryHolder, list);
+                    return true;
+                });
+            }
 
             //}
         }
@@ -216,10 +235,6 @@ public class SongListManagerDialog extends Dialog {
         public int getItemCount() {
             return SongListManager.get().size();
         }
-    }
-
-    public interface OnClickOverride {
-        void onClick(EntryHolder holder, SongList list);
     }
 
 }

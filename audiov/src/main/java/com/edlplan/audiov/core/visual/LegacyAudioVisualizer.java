@@ -2,24 +2,64 @@ package com.edlplan.audiov.core.visual;
 
 import com.edlplan.audiov.core.graphics.ACanvas;
 import com.edlplan.audiov.core.graphics.ATexture;
+import com.edlplan.audiov.core.option.OptionEntry;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class LegacyAudioVisualizer extends BaseVisualizer {
 
-    private ATexture osu_icon_white,lighting;
-    private float[] mBytes;
-    private float[] mPoints;
-
-    private ATexture backBuffer;
-    private ATexture nowView;
+    public static final String DRAW_CURSOR = "@draw cursor";
+    private static final int range = 2;
+    float ang = 0;
+    int barCount = 0;
+    float lk;
+    float change;
+    float[] lastBytes;
 
     //private BufferedWriter out;
-
+    long drawTime = -1;
+    long deltaTime = -1;
+    float mul;
+    float k;
+    float ryAdd;
+    float[] rf;
+    float maxBarLength = 150;
+    float keepLength = 100;
+    float clearRate = 180f / 255;
+    float scale = 1;
+    private boolean drawCursor = true;
+    private ATexture osu_icon_white, lighting;
+    private float[] mBytes;
+    private float[] mPoints;
+    private ATexture backBuffer;
+    private ATexture nowView;
     private float rng;
-
     private float angi;
+    private double beatAngle = 0;
+    private float preBeatX = 0;
+    private float preBeatY = 0;
+    private float minDeltaDis = 10;
 
+    @Override
+    public Map<String, OptionEntry<?>> dumpOptions() {
+        Map<String, OptionEntry<?>> tmp = super.dumpOptions();
+        OptionEntry<Boolean> drawCursor = new OptionEntry<>(DRAW_CURSOR);
+        drawCursor.setData(this.drawCursor);
+        tmp.put(drawCursor.getName(), drawCursor);
+        return tmp;
+    }
+
+    @Override
+    public void applyOptions(Map<String, OptionEntry<?>> options) {
+        super.applyOptions(options);
+        if (options.containsKey(DRAW_CURSOR)) {
+            OptionEntry entry = options.get(DRAW_CURSOR);
+            if (entry.getData() instanceof Boolean) {
+                drawCursor = (Boolean) entry.getData();
+            }
+        }
+    }
 
     @Override
     protected void onPrepare() {
@@ -37,7 +77,6 @@ public class LegacyAudioVisualizer extends BaseVisualizer {
         mBytes = null;
     }
 
-
     public float[] smoth(float[] ary, int start, int l) {
         float[] ra = new float[l];
         for (int i = 0; i < l; i++) {
@@ -47,7 +86,6 @@ public class LegacyAudioVisualizer extends BaseVisualizer {
 
         return ra;
     }
-
 
     @Override
     protected void onUpdateFFT() {
@@ -65,27 +103,6 @@ public class LegacyAudioVisualizer extends BaseVisualizer {
         }
         mBytes = model;
     }
-
-    float ang = 0;
-    int barCount = 0;
-
-    float lk;
-
-    float change;
-    float[] lastBytes;
-
-    long drawTime = -1;
-    long deltaTime = -1;
-
-    float mul;
-    float k;
-    float ryAdd;
-    float[] rf;
-
-    float maxBarLength = 150;
-    float keepLength = 100;
-
-    float clearRate = 180f / 255;
 
     private float limitBarLength(float raw) {
         if (raw < keepLength) {
@@ -196,7 +213,7 @@ public class LegacyAudioVisualizer extends BaseVisualizer {
         for (int i = 0; i < barCount; i++) {
             float bl = limitBarLength(ra[i]);
             mPoints[i * 4] = (float) (nowView.getWidth() / 2 + Math.cos(angi + i * deltaAngle) * r * scale);
-            mPoints[i * 4 + 1] = (float) (nowView.getHeight() / 2 - Math.sin(angi + i * deltaAngle) * r* scale);
+            mPoints[i * 4 + 1] = (float) (nowView.getHeight() / 2 - Math.sin(angi + i * deltaAngle) * r * scale);
             mPoints[i * 4 + 2] = (float) (nowView.getWidth() / 2 + Math.cos(angi + i * deltaAngle) * (bl + r) * scale);
             mPoints[i * 4 + 3] = (float) (nowView.getHeight() / 2 - Math.sin(angi + i * deltaAngle) * (bl + r) * scale);
         }
@@ -211,7 +228,7 @@ public class LegacyAudioVisualizer extends BaseVisualizer {
                 cPan
         );
 
-        {//绘制光标
+        if (drawCursor) {//绘制光标
             float sr = rawrng * 0.3f;
             double dta = Math.pow(k, 5) * (1 + deltaBeat * 20) * 0.04;
             if (dta > 2 * Math.PI) {
@@ -259,22 +276,12 @@ public class LegacyAudioVisualizer extends BaseVisualizer {
         }
 
 
-
-
-
         nowCanvas.end();
 
         bufferCanvas.start();
         bufferCanvas.drawTexture(nowView, 0, 0, 1);
         bufferCanvas.end();
     }
-
-    private double beatAngle = 0;
-    private float preBeatX = 0;
-    private float preBeatY = 0;
-    private float minDeltaDis = 10;
-
-    private static final int range = 2;
 
     private float[] calculateVolume(float[] f) {
         float[] r = new float[f.length];
@@ -296,8 +303,6 @@ public class LegacyAudioVisualizer extends BaseVisualizer {
         }
         return r;
     }
-
-    float scale = 1;
 
     @Override
     protected void onBaseSizeChanged(int newSize) {

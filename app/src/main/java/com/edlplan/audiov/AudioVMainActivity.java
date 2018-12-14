@@ -1,16 +1,11 @@
 package com.edlplan.audiov;
 
 import android.Manifest;
-import android.animation.TimeInterpolator;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.view.MotionEvent;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,34 +13,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.edlplan.audiov.core.AudioVCore;
 import com.edlplan.audiov.core.audio.IAudioEntry;
 import com.edlplan.audiov.platform.android.AndroidPlugin;
 import com.edlplan.audiov.platform.bass.BassPlugin;
-import com.edlplan.audiov.scan.FolderScanner;
-import com.edlplan.audiov.scan.ISongListScanner;
-import com.edlplan.audiov.scan.ScannerEntry;
-import com.edlplan.audiov.scan.SongEntry;
 import com.edlplan.audiov.scan.SongListManager;
+import com.edlplan.audiov.ui.SettingDialog;
 import com.edlplan.audiov.ui.SongListDialog;
 import com.edlplan.audiov.ui.SongListManagerDialog;
 import com.edlplan.audiov.ui.UserStateListenerOverlay;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Random;
-
 public class AudioVMainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,UserStateListenerOverlay.OnUserStateChangeListener {
+        implements NavigationView.OnNavigationItemSelectedListener, UserStateListenerOverlay.OnUserStateChangeListener {
 
     private boolean isSongProgressBarTouched = false;
 
@@ -64,7 +49,6 @@ public class AudioVMainActivity extends AppCompatActivity
                                 Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
             }
         }
-
 
 
         GlobalVar.registerValue(GlobalVar.INTERNAL_PATH, () -> {
@@ -94,14 +78,15 @@ public class AudioVMainActivity extends AppCompatActivity
         SeekBar bar = findViewById(R.id.song_progress);
         bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             boolean preHandled = true;
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    IAudioEntry entry = EdAudioService.getAudioService().getAudioEntry();
+                    IAudioEntry entry = EdlAudioService.getAudioService().getAudioEntry();
                     if (entry != null) {
                         if (preHandled) {
                             preHandled = false;
-                            EdAudioService.getAudioService().post(
+                            EdlAudioService.getAudioService().post(
                                     audioService -> {
                                         if (audioService.getAudioEntry() == entry) {
                                             entry.seekTo(progress * entry.length() / bar.getMax());
@@ -128,14 +113,14 @@ public class AudioVMainActivity extends AppCompatActivity
 
         ImageButton playStopButton = findViewById(R.id.button_play_stop);
         playStopButton.setOnClickListener(v -> {
-            IAudioEntry entry = EdAudioService.getAudioService().getAudioEntry();
+            IAudioEntry entry = EdlAudioService.getAudioService().getAudioEntry();
             if (entry != null) {
                 if (entry.isPlaying()) {
-                    EdAudioService.getAudioService().pause();
+                    EdlAudioService.getAudioService().pause();
                     playStopButton.setImageResource(R.drawable.icons8_play_96);
                     //Toast.makeText(AudioVMainActivity.this, "pause", Toast.LENGTH_SHORT).show();
                 } else {
-                    EdAudioService.getAudioService().play();
+                    EdlAudioService.getAudioService().play();
                     playStopButton.setImageResource(R.drawable.icons8_pause_96);
                     //Toast.makeText(AudioVMainActivity.this, "play", Toast.LENGTH_SHORT).show();
                 }
@@ -143,41 +128,33 @@ public class AudioVMainActivity extends AppCompatActivity
         });
 
 
-        EdAudioService.getAudioService().registerOnAudioProgressListener((audioEntry, ms) -> {
-            runOnUiThread(()->{
+        EdlAudioService.getAudioService().registerOnAudioProgressListener((audioEntry, ms) -> {
+            runOnUiThread(() -> {
                 if (!isSongProgressBarTouched) {
                     bar.setProgress((int) (bar.getMax() * ms / audioEntry.length()));
                 }
             });
         });
 
-        findViewById(R.id.button_next_song).setOnClickListener(v -> EdAudioService.nextSong());
-        findViewById(R.id.button_pre_song).setOnClickListener(v -> EdAudioService.previousSong());
+        findViewById(R.id.button_next_song).setOnClickListener(v -> EdlAudioService.nextSong());
+        findViewById(R.id.button_pre_song).setOnClickListener(v -> EdlAudioService.previousSong());
         findViewById(R.id.open_song_list).setOnClickListener(v -> new SongListDialog(this).show());
 
-        EdAudioService.getAudioService().registerOnAudioCompleteListener(audioEntry -> {
-            EdAudioService.nextSong();
+        EdlAudioService.getAudioService().registerOnAudioCompleteListener(audioEntry -> {
+            EdlAudioService.nextSong();
         });
 
-        EdAudioService.getAudioService().registerOnAudioChangeListener((pre, next) -> {
-            runOnUiThread(() -> {
-                ((TextView)findViewById(R.id.song_name)).setText(
-                        EdAudioService.getSongList().size()>0?
-                                EdAudioService.getSongList().get(EdAudioService.getPlayingIdx()).getSongName():
-                                "404"
-                );
-            });
+        EdlAudioService.getAudioService().registerOnAudioChangeListener((pre, next) -> {
+            runOnUiThread(() -> ((TextView) findViewById(R.id.song_name)).setText(
+                    EdlAudioService.getSongList().size() > 0 ?
+                            EdlAudioService.getSongList().get(EdlAudioService.getPlayingIdx()).getSongName() :
+                            "404"
+            ));
         });
 
 
-        try {
-            //SongListManager.get().getSongList(0).scan();
-            //SongListManager.get().getSongList(0).updateCache();
-            EdAudioService.setSongList(SongListManager.get().getSongList(0).getCachedResult());
-            EdAudioService.playAtPosition((new Random()).nextInt(EdAudioService.getSongList().size()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        EdlAudioService.setOnListInitialBehavior(EdlAudioService.PLAY_RANDOM);
+        EdlAudioService.setSongList(SongListManager.get().getSongList(0));
 
         ((UserStateListenerOverlay) findViewById(R.id.user_state_listener_overlay)).setOnUserStateChangeListener(this);
     }
@@ -261,9 +238,14 @@ public class AudioVMainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.nav_song_list:{
+            case R.id.nav_song_list: {
                 new SongListManagerDialog(this).show();
-            }break;
+            }
+            break;
+            case R.id.nav_setting_visual: {
+                new SettingDialog(this, "视觉设置", ((AudioView) findViewById(R.id.audio_main)).getVisualizer()).show();
+            }
+            break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

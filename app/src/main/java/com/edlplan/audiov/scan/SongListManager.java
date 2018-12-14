@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SongListManager {
 
@@ -24,6 +23,7 @@ public class SongListManager {
 
     private ListenerGroup<Consumer<SongListManager>> onSongListSateChangeListener =
             ListenerGroup.create(songListManagerConsumer -> songListManagerConsumer.consume(this));
+    private ArrayList<SongList> songLists;
 
     public static SongListManager get() {
         if (manager == null) {
@@ -32,8 +32,6 @@ public class SongListManager {
         }
         return manager;
     }
-
-    private ArrayList<SongList> songLists;
 
     public File getListManagerCacheFile() {
         File file = new File(GlobalVar.parseValue("#internal_path#/listManager.javaobj"));
@@ -116,7 +114,7 @@ public class SongListManager {
                 e.printStackTrace();
             }
             entry.setInitialValue(cfg);
-            entry.setScannerklass(DirctCacheScanner.class);
+            entry.setScannerklass(DirectCacheScanner.class);
 
             SongList list = new SongList("默认收藏夹", entry);
             try {
@@ -188,6 +186,7 @@ public class SongListManager {
         int idx = songLists.indexOf(list);
         if (idx != -1) {
             songLists.remove(list);
+            list.clearCache();
             updateCache();
             onSongListSateChangeListener.handle();
         }

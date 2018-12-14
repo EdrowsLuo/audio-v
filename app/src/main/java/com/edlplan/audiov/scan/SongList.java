@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class SongList implements Serializable {
@@ -38,20 +37,20 @@ public class SongList implements Serializable {
         this.name = name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public boolean isEnable() {
@@ -62,12 +61,12 @@ public class SongList implements Serializable {
         this.enable = enable;
     }
 
-    public void setAlwaysUpdateWhenLoad(boolean alwaysUpdateWhenLoad) {
-        this.alwaysUpdateWhenLoad = alwaysUpdateWhenLoad;
-    }
-
     public boolean isAlwaysUpdateWhenLoad() {
         return alwaysUpdateWhenLoad;
+    }
+
+    public void setAlwaysUpdateWhenLoad(boolean alwaysUpdateWhenLoad) {
+        this.alwaysUpdateWhenLoad = alwaysUpdateWhenLoad;
     }
 
     public List<SongEntry> getCachedResult() {
@@ -103,7 +102,7 @@ public class SongList implements Serializable {
         }
     }
 
-    public void updateCache() throws Exception{
+    public void updateCache() throws Exception {
         File file = getCacheFile();
         ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(file));
         writer.writeObject(cachedResult);
@@ -130,7 +129,7 @@ public class SongList implements Serializable {
     }
 
     public boolean isDirectList() {
-        return DirctCacheScanner.class.getCanonicalName().equals(scannerEntry.getScannerklass());
+        return DirectCacheScanner.class.getCanonicalName().equals(scannerEntry.getScannerklass());
     }
 
     private void checkDirectList() {
@@ -164,21 +163,6 @@ public class SongList implements Serializable {
         copy.setFilePath(entry.getFilePath());
         copy.setSongName(entry.getSongName());
         cachedResult.add(copy);
-        try {
-            updateCache();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void removeSong(SongEntry entry) {
-        checkDirectList();
-        Iterator<SongEntry> iterator = cachedResult.iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().equals(entry)) {
-                iterator.remove();
-            }
-        }
         try {
             updateCache();
         } catch (Exception e) {

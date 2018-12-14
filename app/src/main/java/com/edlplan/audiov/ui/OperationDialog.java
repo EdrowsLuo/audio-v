@@ -31,34 +31,6 @@ public class OperationDialog extends Dialog {
         return new OperationBuilder();
     }
 
-    public class OperationBuilder {
-
-        private List<OperationNode> operationNodes = new ArrayList<>();
-
-        public OperationBuilder addOperation(String name, Runnable runnable) {
-            OperationNode node = new OperationNode();
-            node.name = name;
-            node.runnable = runnable;
-            operationNodes.add(node);
-            return this;
-        }
-
-        public void build() {
-            RecyclerView recyclerView = findViewById(R.id.body_list);
-
-            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-
-            recyclerView.setLayoutManager(layoutManager);
-
-            layoutManager.setOrientation(OrientationHelper.VERTICAL);
-
-            layoutManager.setSmoothScrollbarEnabled(true);
-
-            recyclerView.setAdapter(new ListAdapter(operationNodes));
-        }
-
-    }
-
     private static class EntryHolder extends RecyclerView.ViewHolder {
 
         private TextView name;
@@ -102,12 +74,39 @@ public class OperationDialog extends Dialog {
 
     }
 
-
     private static class OperationNode {
 
         private String name;
 
         private Runnable runnable;
+
+    }
+
+    public class OperationBuilder {
+
+        private List<OperationNode> operationNodes = new ArrayList<>();
+
+        public OperationBuilder addOperation(String name, Runnable runnable) {
+            OperationNode node = new OperationNode();
+            node.name = name;
+            node.runnable = runnable;
+            operationNodes.add(node);
+            return this;
+        }
+
+        public void build() {
+            RecyclerView recyclerView = findViewById(R.id.body_list);
+
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+
+            recyclerView.setLayoutManager(layoutManager);
+
+            layoutManager.setOrientation(OrientationHelper.VERTICAL);
+
+            layoutManager.setSmoothScrollbarEnabled(true);
+
+            recyclerView.setAdapter(new ListAdapter(operationNodes));
+        }
 
     }
 }

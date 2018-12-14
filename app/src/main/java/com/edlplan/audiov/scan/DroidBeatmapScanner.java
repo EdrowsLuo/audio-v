@@ -1,5 +1,7 @@
 package com.edlplan.audiov.scan;
 
+import android.support.annotation.Keep;
+
 import com.edlplan.audiov.GlobalVar;
 import com.edlplan.audiov.core.utils.Consumer;
 
@@ -11,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 
+@Keep
 public class DroidBeatmapScanner implements ISongListScanner {
 
     private String songsPath;
@@ -30,14 +33,18 @@ public class DroidBeatmapScanner implements ISongListScanner {
                 switch (key) {
                     case "AudioFilename": {
                         filename = line.substring(idx + 1, line.length()).trim();
-                    }break;
+                    }
+                    break;
                     case "Title": {
                         title = line.substring(idx + 1, line.length()).trim();
-                    }break;
+                    }
+                    break;
                     case "Artist": {
                         artist = line.substring(idx + 1, line.length()).trim();
-                    }break;
-                    default:continue;
+                    }
+                    break;
+                    default:
+                        continue;
                 }
             }
         }

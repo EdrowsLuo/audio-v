@@ -1,7 +1,6 @@
 package com.edlplan.audiov;
 
 import android.os.Environment;
-import android.system.Os;
 
 import com.edlplan.audiov.core.utils.Getter;
 
@@ -14,6 +13,8 @@ public class GlobalVar {
     public static final String INTERNAL_PATH = "internal_path";
 
     private static HashMap<String, Getter<String>> valueMap = new HashMap<>();
+
+    private static HashMap<String, String> translationMap = new HashMap<>();
 
     static {
         registerValue(EXTERNAL_PATH, () -> {
@@ -30,6 +31,13 @@ public class GlobalVar {
     }
 
     public static String parseValue(String str) {
+
+        if (str.startsWith("@")) {
+            String body = str.substring(1);
+            String get = translationMap.get(body);
+            return get == null ? body : get;
+        }
+
         int pos1 = str.indexOf('#');
         if (pos1 != -1) {
             int pos2 = str.indexOf('#', pos1 + 1);

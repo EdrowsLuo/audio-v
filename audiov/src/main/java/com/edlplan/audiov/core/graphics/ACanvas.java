@@ -16,6 +16,16 @@ public abstract class ACanvas {
         this.target = target;
     }
 
+    /**
+     * 通过一个材质创建画板，需要设置了全局工厂
+     *
+     * @param texture
+     * @return
+     */
+    public static ACanvas of(ATexture texture) {
+        return AudioVCore.getInstance().graphics().getCanvasFactory().create(texture);
+    }
+
     public ATexture getTarget() {
         return target;
     }
@@ -32,22 +42,24 @@ public abstract class ACanvas {
 
     /**
      * 用某种颜色替换整个画板
+     *
      * @param r,g,b,a 替换的颜色
      */
     public abstract void clear(float r, float g, float b, float a);
 
     /**
      * 在画板指定位置绘制一个材质
+     *
      * @param texture 要绘制的材质
-     * @param ox 选取区域的材质x坐标
-     * @param oy 选取区域的材质y坐标
-     * @param ow 选取的材质宽度
-     * @param oh 选取的材质高度
-     * @param cx 绘制起始位置的x坐标
-     * @param cy 绘制起始位置的y坐标
-     * @param cw 绘制区域的宽度
-     * @param ch 绘制区域的高度
-     * @param alpha 透明度
+     * @param ox      选取区域的材质x坐标
+     * @param oy      选取区域的材质y坐标
+     * @param ow      选取的材质宽度
+     * @param oh      选取的材质高度
+     * @param cx      绘制起始位置的x坐标
+     * @param cy      绘制起始位置的y坐标
+     * @param cw      绘制区域的宽度
+     * @param ch      绘制区域的高度
+     * @param alpha   透明度
      */
     public abstract void drawTexture(
             ATexture texture,
@@ -57,10 +69,11 @@ public abstract class ACanvas {
 
     /**
      * 简化参数的绘制
+     *
      * @param texture 要绘制的材质
-     * @param cx 在画板的起始x位置
-     * @param cy 在画板的起始y位置
-     * @param alpha 透明度
+     * @param cx      在画板的起始x位置
+     * @param cy      在画板的起始y位置
+     * @param alpha   透明度
      */
     public void drawTexture(ATexture texture, int cx, int cy, float alpha) {
         drawTexture(
@@ -73,27 +86,19 @@ public abstract class ACanvas {
 
     /**
      * 绘制一些线
-     * @param lineData 绘制的线的起始点和结束点的集合，2个数据一组
+     *
+     * @param lineData  绘制的线的起始点和结束点的集合，2个数据一组
      * @param lineWidth 绘制的线的宽度
-     * @param r,g,b,a 线的颜色
+     * @param r,g,b,a   线的颜色
      */
     public abstract void drawLines(
             float[] lineData,
             float lineWidth, float r, float g, float b, float a);
 
     /**
-     * 通过一个材质创建画板，需要设置了全局工厂
-     * @param texture
-     * @return
-     */
-    public static ACanvas of(ATexture texture) {
-        return AudioVCore.getInstance().graphics().getCanvasFactory().create(texture);
-    }
-
-    /**
      * 创建ACanvas的工厂
      */
-    public static abstract class AFactory{
+    public static abstract class AFactory {
         public abstract ACanvas create(ATexture texture);
     }
 

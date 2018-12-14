@@ -109,20 +109,20 @@
                 </LinearLayout>
 
                 <RelativeLayout
-                    android:layout_marginTop="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
+                    android:layout_marginTop="10dp"
                     android:gravity="left"
                     android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/textView6"
-                        android:gravity="left"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_margin="5dp"
+                        android:gravity="left"
                         android:text="初始化数据"
                         android:textAlignment="center" />
 
