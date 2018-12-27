@@ -7,7 +7,7 @@ import com.edlplan.audiov.core.option.OptionEntry;
 import java.io.IOException;
 import java.util.Map;
 
-public class LegacyAudioVisualizer extends BaseVisualizer {
+public class EdlAudioVisualizer extends BaseVisualizer {
 
     public static final String DRAW_CURSOR = "@draw cursor";
     private static final int range = 2;

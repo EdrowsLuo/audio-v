@@ -5,6 +5,11 @@
       <list>
         <option value="$PROJECT_DIR$/build" />
         <option value="$PROJECT_DIR$/app/build" />
+        <option value="$PROJECT_DIR$/androidplugin/build" />
+        <option value="$PROJECT_DIR$/audiov/build" />
+        <option value="$PROJECT_DIR$/bassplugin/build" />
+        <option value="$PROJECT_DIR$/LibBASS/build" />
+        <option value="$PROJECT_DIR$/LibBASS/src/main/java/com/un4seen" />
       </list>
     </option>
   </component>

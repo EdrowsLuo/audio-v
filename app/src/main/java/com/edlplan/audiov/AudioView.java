@@ -11,7 +11,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.edlplan.audiov.core.visual.BaseVisualizer;
-import com.edlplan.audiov.core.visual.LegacyAudioVisualizer;
+import com.edlplan.audiov.core.visual.EdlAudioVisualizer;
 import com.edlplan.audiov.platform.android.AndroidTexture;
 
 public class AudioView extends View {
@@ -31,7 +31,7 @@ public class AudioView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (visualizer == null) {
-            visualizer = new LegacyAudioVisualizer();
+            visualizer = new EdlAudioVisualizer();
             visualizer.setBaseSize(Math.min(getWidth(), getHeight()));
             visualizer.prepare();
             if (EdlAudioService.getAudioService().getAudioEntry() != null) {

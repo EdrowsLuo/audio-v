@@ -9,7 +9,7 @@ public class Bass {
     }
 
     static {
-        BASS.BASS_Init(-1, 44100, 0);
+        BASS.BASS_Init(-1, 441000, 0);
     }
 }
 

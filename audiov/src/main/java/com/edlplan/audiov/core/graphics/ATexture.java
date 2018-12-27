@@ -71,42 +71,4 @@ public abstract class ATexture {
         public abstract ATexture createFromAssets(String path) throws IOException;
 
     }
-
-    /**
-     * 通过反射创建的默认工厂，此时要求对应的ATexture有对应的构造方法
-     */
-    /*public static class Factory extends AFactory{
-
-        private Class<? extends ATexture> klass;
-
-        private Constructor<? extends ATexture> whConstructor;
-
-        private Constructor<? extends ATexture> byteConstructor;
-
-        public Factory(Class<? extends ATexture> klass) throws NoSuchMethodException {
-            this.klass = klass;
-            whConstructor = klass.getConstructor(int.class, int.class);
-            byteConstructor = klass.getConstructor(byte[].class, int.class, int.class);
-        }
-
-        @Override
-        public ATexture create(int w, int h) {
-            try {
-                return whConstructor.newInstance(w, h);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        public ATexture create(byte[] data, int offset, int length) {
-            try {
-                return whConstructor.newInstance(data, offset, length);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-    }*/
 }
