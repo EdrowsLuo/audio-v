@@ -16,7 +16,6 @@ import com.edlplan.audiov.R;
 import com.edlplan.audiov.scan.DirectCacheScanner;
 import com.edlplan.audiov.scan.ISongListScanner;
 import com.edlplan.audiov.scan.ScannerEntry;
-import com.edlplan.audiov.scan.ScannerTypeMapper;
 import com.edlplan.audiov.scan.SongList;
 import com.edlplan.audiov.scan.SongListManager;
 
@@ -152,11 +151,10 @@ public class SongListEditDialog extends Dialog {
             return false;
         }
 
-        Class klass = null;
+        Class klass;
         try {
-            klass = Class.forName(
-                    ScannerTypeMapper.map(((AutoCompleteTextView) findViewById(R.id.song_list_type_class))
-                            .getText().toString()));
+            klass = Class.forName(((AutoCompleteTextView) findViewById(R.id.song_list_type_class))
+                    .getText().toString());
             if (!ISongListScanner.class.isAssignableFrom(klass)) {
                 Toast.makeText(getContext(), "找不到类型：" + ((AutoCompleteTextView) findViewById(R.id.song_list_type_class))
                         .getText().toString(), Toast.LENGTH_LONG).show();

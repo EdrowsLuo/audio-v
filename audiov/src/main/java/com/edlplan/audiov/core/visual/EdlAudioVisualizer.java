@@ -11,31 +11,24 @@ public class EdlAudioVisualizer extends BaseVisualizer {
 
     public static final String DRAW_CURSOR = "@draw cursor";
     private static final int range = 2;
-    float ang = 0;
-    int barCount = 0;
-    float lk;
-    float change;
-    float[] lastBytes;
 
-    //private BufferedWriter out;
-    long drawTime = -1;
-    long deltaTime = -1;
-    float mul;
-    float k;
-    float ryAdd;
-    float[] rf;
-    float maxBarLength = 150;
-    float keepLength = 100;
-    float clearRate = 180f / 255;
-    float scale = 1;
+    private float ang = 0;
+    private float lk;
+    private float[] lastBytes;
+
+    private long drawTime = -1;
+    private long deltaTime = -1;
+    private float[] rf;
+    private float maxBarLength = 150;
+    private float keepLength = 100;
+    private float clearRate = 180f / 255;
+    private float scale = 1;
     private boolean drawCursor = true;
     private ATexture osu_icon_white, lighting;
     private float[] mBytes;
     private float[] mPoints;
     private ATexture backBuffer;
     private ATexture nowView;
-    private float rng;
-    private float angi;
     private double beatAngle = 0;
     private float preBeatX = 0;
     private float preBeatY = 0;
@@ -77,16 +70,6 @@ public class EdlAudioVisualizer extends BaseVisualizer {
         mBytes = null;
     }
 
-    public float[] smoth(float[] ary, int start, int l) {
-        float[] ra = new float[l];
-        for (int i = 0; i < l; i++) {
-            ra[i] = ary[start + (i - 1 + l) % l] + ary[start + i % l] + ary[start + (i + 1) % l];
-            ra[i] /= 3;
-        }
-
-        return ra;
-    }
-
     @Override
     protected void onUpdateFFT() {
         super.onUpdateFFT();
@@ -114,18 +97,25 @@ public class EdlAudioVisualizer extends BaseVisualizer {
 
     private void updateData() {
 
+        /*--------------------------------------------------------------------
+         *                      处理帧时间差
+         *-------------------------------------------------------------------*/
         if (drawTime != -1) {
             deltaTime = System.currentTimeMillis() - drawTime;
         }
         drawTime = System.currentTimeMillis();
 
+
+        /*--------------------------------------------------------------------
+         *                      处理音乐频谱数据
+         *-------------------------------------------------------------------*/
         if (mBytes == null) {
             return;
         }
 
-        barCount = mBytes.length - 20;
+        int barCount = mBytes.length - 20;
 
-        mul = 0;
+        float mul = 0;
         for (int i = 0; i < mBytes.length; i++) {
             if (mBytes[i] < 0) {
                 mBytes[i] = 127;
@@ -134,7 +124,7 @@ public class EdlAudioVisualizer extends BaseVisualizer {
         }
         mul = (float) Math.sqrt(0.15f * mul / (mBytes.length));
 
-        k = 0;
+        float k = 0;
         for (int i = 0; i < mBytes.length; i++) {
             k += (i + 4) * mBytes[i];
         }
@@ -154,7 +144,7 @@ public class EdlAudioVisualizer extends BaseVisualizer {
         }
         rf = calculateVolume(rf);
 
-        change = 0;
+        float change = 0;
         if (lastBytes == null || lastBytes.length != rf.length) lastBytes = new float[rf.length];
 
         for (int i = 0; i < rf.length; i++) {
@@ -175,7 +165,7 @@ public class EdlAudioVisualizer extends BaseVisualizer {
         if (deltaTime > 0 && deltaTime < 200)
             ang += (Math.abs(k - lk) + 0.08 * k) * 0.006 * deltaTime;
 
-        ryAdd = 0;
+        float ryAdd = 0;
 
         boolean isBeat = false;
         float cPan = 210f / 255;
@@ -188,8 +178,11 @@ public class EdlAudioVisualizer extends BaseVisualizer {
         lk = k;
 
 
-        ACanvas nowCanvas = ACanvas.of(nowView);
 
+        /*--------------------------------------------------------------------
+         *                      进行绘制
+         *-------------------------------------------------------------------*/
+        ACanvas nowCanvas = ACanvas.of(nowView);
         nowCanvas.start();
         nowCanvas.clear(0, 0, 0, 0);
         nowCanvas.drawTexture(backBuffer, 0, 0, clearRate);
@@ -205,10 +198,10 @@ public class EdlAudioVisualizer extends BaseVisualizer {
         }
 
         float rawrng = k * 60 + 137;
-        rng = rawrng + ryAdd;
+        float rng = rawrng + ryAdd;
 
         final float deltaAngle = (float) ((2 * Math.PI / (barCount - 1)));
-        angi = ((int) (ang / deltaAngle)) * deltaAngle;
+        float angi = ((int) (ang / deltaAngle)) * deltaAngle;
         int r = (int) (165 + k * 25);
         for (int i = 0; i < barCount; i++) {
             float bl = limitBarLength(ra[i]);
@@ -239,9 +232,8 @@ public class EdlAudioVisualizer extends BaseVisualizer {
                 sr *= 1.2f;
             }
 
-            float beatR = rawrng;//(rawrng - 110) * 4 +20;
-            float beatX = (float) (beatR * 0.6 * Math.cos(beatAngle));
-            float beatY = (float) (beatR * 0.6 * Math.sin(beatAngle));
+            float beatX = (float) (rawrng * 0.6 * Math.cos(beatAngle));
+            float beatY = (float) (rawrng * 0.6 * Math.sin(beatAngle));
 
             double l = Math.hypot(beatX - preBeatX, beatY - preBeatY);
 

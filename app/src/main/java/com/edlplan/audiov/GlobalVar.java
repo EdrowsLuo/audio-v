@@ -6,6 +6,9 @@ import com.edlplan.audiov.core.utils.Getter;
 
 import java.util.HashMap;
 
+/**
+ * 提供一些全局的字符串转换
+ */
 public class GlobalVar {
 
     public static final String EXTERNAL_PATH = "external_path";
