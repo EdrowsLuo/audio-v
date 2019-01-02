@@ -222,7 +222,7 @@ public class EdlAudioVisualizer extends BaseVisualizer {
         );
 
         if (drawCursor) {//绘制光标
-            float sr = rawrng * 0.3f;
+            float sr = rawrng * 0.2f * scale;
             double dta = Math.pow(k, 5) * (1 + deltaBeat * 20) * 0.04;
             if (dta > 2 * Math.PI) {
                 dta = Math.PI * 3 / 2;

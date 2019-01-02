@@ -50,6 +50,17 @@ public class AudioVMainActivity extends AppCompatActivity
             }
         }
 
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SYSTEM_ALERT_WINDOW)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.SYSTEM_ALERT_WINDOW)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW}, 1);
+            }
+        }
+
 
         GlobalVar.registerValue(GlobalVar.INTERNAL_PATH, () -> {
             String p = getFilesDir().getAbsolutePath();
